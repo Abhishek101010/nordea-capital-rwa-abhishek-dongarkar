@@ -1,0 +1,15 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/page/2.1.0/schema.json",
+  "name": "274a67ce7f06f4e0b4a8",
+  "displayName": "Executive Summary",
+  "displayOption": "FitToPage",
+  "height": 1080,
+  "width": 1920,
+  "visualInteractions": [
+    {
+      "source": "0256fca7de0d70f6dec4",
+      "target": "6be61d9fca0a93725d51",
+      "type": "NoFilter"
+    }
+  ]
+}

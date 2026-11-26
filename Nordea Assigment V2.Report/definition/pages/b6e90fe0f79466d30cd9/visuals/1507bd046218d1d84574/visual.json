@@ -1,0 +1,38 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.15.0/schema.json",
+  "name": "1507bd046218d1d84574",
+  "position": {
+    "x": 0,
+    "y": 48.46153846153846,
+    "z": 0,
+    "height": 66.92307692307692,
+    "width": 1922.3076923076922,
+    "tabOrder": 0
+  },
+  "visual": {
+    "visualType": "textbox",
+    "objects": {
+      "general": [
+        {
+          "properties": {
+            "paragraphs": [
+              {
+                "textRuns": [
+                  {
+                    "value": "Segment Drill Down",
+                    "textStyle": {
+                      "fontWeight": "bold",
+                      "fontSize": "36pt"
+                    }
+                  }
+                ],
+                "horizontalTextAlignment": "center"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "drillFilterOtherVisuals": true
+  }
+}

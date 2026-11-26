@@ -1,0 +1,43 @@
+table Security_UserCountry
+	isHidden
+	lineageTag: e62ff464-cc2f-457b-bee4-8b9b0508efcb
+
+	column UserEmail
+		dataType: string
+		isHidden
+		lineageTag: 9a63293e-9492-43d7-897c-c492ed2d8e10
+		summarizeBy: none
+		sourceColumn: UserEmail
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column CountryCode
+		dataType: string
+		isHidden
+		lineageTag: d6bff8a0-d26a-4b8c-ab4b-8a01022def27
+		summarizeBy: none
+		sourceColumn: CountryCode
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	partition Security_UserCountry = m
+		mode: import
+		source =
+				let
+				    Source = Csv.Document(File.Contents("C:\Users\abhi\Downloads\Security_UserCountry.csv"),[Delimiter=",", Columns=2, Encoding=1252, QuoteStyle=QuoteStyle.None]),
+				    #"Changed Type" = Table.TransformColumnTypes(Source,{{"Column1", type text}, {"Column2", type text}}),
+				    #"Promoted Headers" = Table.PromoteHeaders(#"Changed Type", [PromoteAllScalars=true]),
+				    #"Changed Type1" = Table.TransformColumnTypes(#"Promoted Headers",{{"UserEmail", type text}, {"CountryCode", type text}})
+				in
+				    #"Changed Type1"
+
+	changedProperty = IsHidden
+
+	annotation PBI_ResultType = Table
+
+	annotation PBI_NavigationStepName = Navigation
+

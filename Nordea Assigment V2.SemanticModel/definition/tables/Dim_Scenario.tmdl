@@ -1,0 +1,45 @@
+table Dim_Scenario
+	lineageTag: 338ae306-f0d0-4fb4-a839-fc7395b6fce7
+
+	column ScenarioCode
+		dataType: string
+		isHidden
+		lineageTag: 2024e464-700d-43e0-9d63-ff6c5fe69a83
+		summarizeBy: none
+		sourceColumn: ScenarioCode
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column ScenarioName
+		dataType: string
+		lineageTag: 0eda5030-2e63-493c-bbc3-c3a257a166cd
+		summarizeBy: none
+		sourceColumn: ScenarioName
+
+		annotation SummarizationSetBy = Automatic
+
+	column Description
+		dataType: string
+		lineageTag: e9c1f83d-9cf7-4516-b0bf-e44143d59e26
+		summarizeBy: none
+		sourceColumn: Description
+
+		annotation SummarizationSetBy = Automatic
+
+	partition Dim_Scenario = m
+		mode: import
+		source =
+				let
+				    Source = Csv.Document(File.Contents("C:\Users\abhi\Downloads\Dim_Scenario.csv"),[Delimiter=",", Columns=3, Encoding=1252, QuoteStyle=QuoteStyle.None]),
+				    #"Changed Type" = Table.TransformColumnTypes(Source,{{"Column1", type text}, {"Column2", type text}, {"Column3", type text}}),
+				    #"Promoted Headers" = Table.PromoteHeaders(#"Changed Type", [PromoteAllScalars=true]),
+				    #"Changed Type1" = Table.TransformColumnTypes(#"Promoted Headers",{{"ScenarioCode", type text}, {"ScenarioName", type text}, {"Description", type text}})
+				in
+				    #"Changed Type1"
+
+	annotation PBI_ResultType = Table
+
+	annotation PBI_NavigationStepName = Navigation
+

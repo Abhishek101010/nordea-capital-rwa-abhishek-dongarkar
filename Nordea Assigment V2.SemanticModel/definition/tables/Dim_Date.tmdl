@@ -1,0 +1,116 @@
+table Dim_Date
+	lineageTag: 93f5b069-bf47-4e82-835f-5f231b4a3bba
+	dataCategory: Time
+
+	column Date
+		dataType: dateTime
+		isKey
+		formatString: Long Date
+		lineageTag: 04cd2aea-11a6-4cb1-9c0d-4c9bdbd13e02
+		summarizeBy: none
+		sourceColumn: Date
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column Year
+		dataType: int64
+		formatString: 0
+		lineageTag: 99600523-7256-43b1-869b-696ca4943a5b
+		summarizeBy: none
+		sourceColumn: Year
+
+		annotation SummarizationSetBy = Automatic
+
+	column MonthNumber
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: deed5d2b-79a2-4dc6-bb14-8391111cf402
+		summarizeBy: none
+		sourceColumn: MonthNumber
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column YearMonthNumber
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: b22109d0-643c-4650-9ac3-7d72b4f3e345
+		summarizeBy: none
+		sourceColumn: YearMonthNumber
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column Month
+		dataType: string
+		lineageTag: b37370d8-a43d-47b4-81d6-80eccf88fbd7
+		summarizeBy: none
+		sourceColumn: Month
+		sortByColumn: YearMonthNumber
+
+		changedProperty = SortByColumn
+
+		annotation SummarizationSetBy = Automatic
+
+	column MonthEnd
+		dataType: dateTime
+		isHidden
+		formatString: Long Date
+		lineageTag: 5a7e5e50-737e-4df3-a2c3-6f45c1d469a1
+		summarizeBy: none
+		sourceColumn: MonthEnd
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column Quarter
+		dataType: string
+		lineageTag: aca0312b-1052-4111-ae28-f342b8981b5f
+		summarizeBy: none
+		sourceColumn: Quarter
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Has Data' =
+			
+			CALCULATE (
+			    COUNTROWS ( Fact_Exposure ),
+			    ALLEXCEPT ( Dim_Date, Dim_Date[YearMonthNumber] )
+			) > 0
+		formatString: """TRUE"";""TRUE"";""FALSE"""
+		lineageTag: e7ccd663-314b-4c58-a2e4-d8f4020c302a
+		summarizeBy: none
+
+		annotation SummarizationSetBy = Automatic
+
+	partition Dim_Date = m
+		mode: import
+		source =
+				let
+				    StartDate = #date(2026, 1, 1),
+				    EndDate = #date(2026, 12, 31),
+				    Dates = List.Dates(StartDate, Duration.Days(EndDate - StartDate) + 1, #duration(1, 0, 0, 0)),
+				    AsTable = Table.FromList(Dates, Splitter.SplitByNothing(), {"Date"}),
+				    Typed = Table.TransformColumnTypes(AsTable, {{"Date", type date}}),
+				    Year = Table.AddColumn(Typed, "Year", each Date.Year([Date]), Int64.Type),
+				    MonthNumber = Table.AddColumn(Year, "MonthNumber", each Date.Month([Date]), Int64.Type),
+				    YearMonthNumber = Table.AddColumn(MonthNumber, "YearMonthNumber", each [Year] * 100 + [MonthNumber], Int64.Type),
+				    Month = Table.AddColumn(YearMonthNumber, "Month", each Date.ToText([Date], [Format = "MMM yyyy", Culture = "en-US"]), type text),
+				    MonthEnd = Table.AddColumn(Month, "MonthEnd", each Date.EndOfMonth([Date]), type date),
+				    Quarter = Table.AddColumn(MonthEnd, "Quarter", each "Q" & Text.From(Date.QuarterOfYear([Date])), type text)
+				in
+				    Quarter
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+

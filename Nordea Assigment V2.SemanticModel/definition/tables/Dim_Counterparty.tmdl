@@ -1,0 +1,58 @@
+table Dim_Counterparty
+	lineageTag: 8a44bfd9-90e6-40c4-98f3-c8b9d568f737
+
+	column CounterpartyID
+		dataType: string
+		isHidden
+		lineageTag: 354e70de-8edd-4152-8cf7-1fc86d1ac96a
+		summarizeBy: none
+		sourceColumn: CounterpartyID
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column CounterpartyName
+		dataType: string
+		lineageTag: 2c8a6d23-5e9e-4c97-873d-6e9dd398e9d3
+		summarizeBy: none
+		sourceColumn: CounterpartyName
+
+		annotation SummarizationSetBy = Automatic
+
+	column CountryCode
+		dataType: string
+		isHidden
+		lineageTag: de21a25b-8865-4339-96d8-a93a4f687864
+		summarizeBy: none
+		sourceColumn: CountryCode
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column InternalRating
+		dataType: string
+		lineageTag: 743f634b-968f-48b7-986e-5678723c19fe
+		summarizeBy: none
+		sourceColumn: InternalRating
+
+		annotation SummarizationSetBy = Automatic
+
+	partition Dim_Counterparty = m
+		mode: import
+		source =
+				let
+				    Source = Csv.Document(File.Contents("C:\Users\abhi\Downloads\Dim_Counterparty.csv"),[Delimiter=",", Columns=4, Encoding=1252, QuoteStyle=QuoteStyle.None]),
+				    #"Changed Type" = Table.TransformColumnTypes(Source,{{"Column1", type text}, {"Column2", type text}, {"Column3", type text}, {"Column4", type text}}),
+				    #"Renamed Columns" = Table.RenameColumns(#"Changed Type",{{"Column1", "CounterpartyID"}}),
+				    #"Promoted Headers" = Table.PromoteHeaders(#"Renamed Columns", [PromoteAllScalars=true]),
+				    #"Added CP011" = Table.Combine({#"Changed Type", Table.FromRows({{"CP011", "Unknown counterparty", "PL", "Not rated"}}, Table.ColumnNames(#"Changed Type"))}),
+				    #"Promoted Headers1" = Table.PromoteHeaders(#"Added CP011", [PromoteAllScalars=true])
+				in
+				    #"Promoted Headers1"
+
+	annotation PBI_ResultType = Table
+
+	annotation PBI_NavigationStepName = Navigation
+

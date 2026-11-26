@@ -1,0 +1,80 @@
+table DQ_Reconciliation
+	lineageTag: 4eccbe4b-e699-4069-a47e-327e577e4357
+
+	column SortOrder
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: 385e8433-949c-430e-8f64-a948949358bc
+		summarizeBy: sum
+		sourceColumn: SortOrder
+
+		changedProperty = SortByColumn
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column Check
+		dataType: string
+		lineageTag: 055d7ee8-d008-4f80-a7eb-67f4c9b8c8d3
+		summarizeBy: none
+		sourceColumn: Check
+		sortByColumn: SortOrder
+
+		changedProperty = SortByColumn
+
+		annotation SummarizationSetBy = Automatic
+
+	column SourceValue
+		dataType: double
+		lineageTag: 844b26ec-e8b7-496a-ac17-0f7b87a94e32
+		summarizeBy: sum
+		sourceColumn: SourceValue
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column Explanation
+		dataType: string
+		lineageTag: 09466f8f-ecd3-46b6-80e0-f1548e483bd0
+		summarizeBy: none
+		sourceColumn: Explanation
+
+		annotation SummarizationSetBy = Automatic
+
+	partition DQ_Reconciliation = m
+		mode: import
+		source =
+				let
+				    Path = "C:\Users\abhi\Downloads\",
+				    ReadCsv = (fileName as text) as table =>
+				        Table.PromoteHeaders(
+				            Csv.Document(File.Contents(Path & fileName), [Delimiter = ",", Encoding = 65001, QuoteStyle = QuoteStyle.Csv]),
+				            [PromoteAllScalars = true]),
+				    ToNumber = (value) =>
+				        if value = null or value = "" then null
+				        else Number.FromText(Text.Remove(Text.From(value), {","}), "en-US"),
+				    Fact = ReadCsv("Fact_Exposure.csv"),
+				    Checks = #table(
+				        type table [SortOrder = Int64.Type, Check = text, SourceValue = number, Explanation = text],
+				        {
+				            {1, "Fact rows", Table.RowCount(Fact), "Duplicate EXP-0021 removed"},
+				            {2, "Sum ExposureEUR", List.Sum(List.Transform(Fact[ExposureEUR], ToNumber)), "Difference is the duplicate EXP-0021"},
+				            {3, "Sum RWA", List.Sum(List.Transform(Fact[RWA], ToNumber)), "Difference is the duplicate EXP-0021"},
+				            {4, "Sum CapitalRequirement", List.Sum(List.Transform(Fact[CapitalRequirement], ToNumber)), "Difference is the duplicate EXP-0021"},
+				            {5, "Rows with missing RWA", List.Count(List.Select(Fact[RWA], each _ = null or _ = "")), "EXP-0011 kept and flagged"},
+				            {6, "Dim_Counterparty rows", Table.RowCount(ReadCsv("Dim_Counterparty.csv")), "Placeholder CP011 added"},
+				            {7, "Dim_Country rows", Table.RowCount(ReadCsv("Dim_Country.csv")), "No change"},
+				            {8, "Dim_Segment rows", Table.RowCount(ReadCsv("Dim_Segment.csv")), "No change"},
+				            {9, "Dim_Scenario rows", Table.RowCount(ReadCsv("Dim_Scenario.csv")), "No change"},
+				            {10, "Security_UserCountry rows", Table.RowCount(ReadCsv("Security_UserCountry.csv")), "No change"}
+				        })
+				in
+				    Checks
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+

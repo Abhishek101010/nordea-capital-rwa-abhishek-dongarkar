@@ -1,0 +1,52 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.15.0/schema.json",
+  "name": "05b5bb35766b9b7ffeb3",
+  "position": {
+    "x": 376,
+    "y": 0,
+    "z": 1000,
+    "height": 628,
+    "width": 584,
+    "tabOrder": 1000
+  },
+  "visual": {
+    "visualType": "tableEx",
+    "query": {
+      "queryState": {
+        "Values": {
+          "projections": [
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "Dim_Counterparty"
+                    }
+                  },
+                  "Property": "CounterpartyName"
+                }
+              },
+              "queryRef": "Dim_Counterparty.CounterpartyName",
+              "nativeQueryRef": "CounterpartyName"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "_Measures"
+                    }
+                  },
+                  "Property": "Total RWA"
+                }
+              },
+              "queryRef": "_Measures.Total RWA",
+              "nativeQueryRef": "Total RWA"
+            }
+          ]
+        }
+      }
+    },
+    "drillFilterOtherVisuals": true
+  }
+}

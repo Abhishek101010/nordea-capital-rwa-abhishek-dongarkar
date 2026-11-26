@@ -1,0 +1,139 @@
+table Fact_Exposure
+	lineageTag: 87cd87e3-c3bd-4245-9a8e-034fe427d6d7
+
+	column ExposureID
+		dataType: string
+		lineageTag: c4bddb02-816f-44be-9fa0-ffd3d5e483d7
+		summarizeBy: none
+		sourceColumn: ExposureID
+
+		annotation SummarizationSetBy = Automatic
+
+	column ReportMonth
+		dataType: dateTime
+		isHidden
+		formatString: Long Date
+		lineageTag: 96230ae7-b174-4fa5-a625-14431ca60ea6
+		summarizeBy: none
+		sourceColumn: ReportMonth
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column CounterpartyID
+		dataType: string
+		isHidden
+		lineageTag: b41d92b9-a4d5-43d3-aa16-f0102c5339f6
+		summarizeBy: none
+		sourceColumn: CounterpartyID
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column CountryCode
+		dataType: string
+		isHidden
+		lineageTag: b12e9a3f-b51a-4c6b-afe0-dea4f491b976
+		summarizeBy: none
+		sourceColumn: CountryCode
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column SegmentCode
+		dataType: string
+		lineageTag: 88a0be79-644e-4fcc-92c4-8106abe3512c
+		summarizeBy: none
+		sourceColumn: SegmentCode
+
+		annotation SummarizationSetBy = Automatic
+
+	column Currency
+		dataType: string
+		lineageTag: 5d23e234-7670-45fe-a053-0ca95b53ad2d
+		summarizeBy: none
+		sourceColumn: Currency
+
+		annotation SummarizationSetBy = Automatic
+
+	column ExposureEUR
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: 63d5f273-8a48-4b11-8089-4be8cd61d1a3
+		summarizeBy: sum
+		sourceColumn: ExposureEUR
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column RWA
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: 8a7d21ba-83a4-4aeb-a543-8476ef1a68d6
+		summarizeBy: sum
+		sourceColumn: RWA
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column CapitalRequirement
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: f2bdc975-ccbe-4426-8ab0-6f5468719153
+		summarizeBy: sum
+		sourceColumn: CapitalRequirement
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column ScenarioCode
+		dataType: string
+		isHidden
+		lineageTag: 870af388-2e61-43ff-a7f2-84f987d6f41b
+		summarizeBy: none
+		sourceColumn: ScenarioCode
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column DQ_Flag
+		dataType: string
+		lineageTag: 8d77700a-4612-48f4-ae8e-11db8ffa51e7
+		summarizeBy: none
+		sourceColumn: DQ_Flag
+
+		annotation SummarizationSetBy = Automatic
+
+	partition Fact_Exposure = m
+		mode: import
+		source =
+				let
+				    Source = Csv.Document(File.Contents("C:\Users\abhi\Downloads\Fact_Exposure.csv"),[Delimiter=",", Columns=10, Encoding=1252, QuoteStyle=QuoteStyle.None]),
+				    #"Promoted Headers" = Table.PromoteHeaders(Source, [PromoteAllScalars=true]),
+				    #"Changed Type" = Table.TransformColumnTypes(#"Promoted Headers",{{"ExposureID", type text}, {"ReportMonth", type date}, {"CounterpartyID", type text}, {"CountryCode", type text}, {"SegmentCode", type text}, {"Currency", type text}, {"ExposureEUR", Int64.Type}, {"RWA", Int64.Type}, {"CapitalRequirement", Int64.Type}, {"ScenarioCode", type text}}),
+				    #"Uppercased Text" = Table.TransformColumns(#"Changed Type",{{"CountryCode", Text.Upper, type text}, {"Currency", Text.Upper, type text}, {"SegmentCode", Text.Upper, type text}}),
+				    #"Filtered Rows" = Table.SelectRows(#"Uppercased Text", each true),
+				    #"Removed Duplicates" = Table.Distinct(#"Filtered Rows"),
+				    #"DQ_Flag Added" = Table.AddColumn(#"Removed Duplicates", "DQ_Flag", each if [RWA] = null or [CapitalRequirement] = null then "Missing RWA and capital requirement"
+				else if [CounterpartyID] = "CP011" then "Unknown counterparty"
+				else "OK"),
+				    #"Changed Type1" = Table.TransformColumnTypes(#"DQ_Flag Added",{{"DQ_Flag", type text}})
+				in
+				    #"Changed Type1"
+
+	annotation PBI_ResultType = Table
+
+	annotation PBI_NavigationStepName = Navigation
+

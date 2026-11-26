@@ -1,0 +1,11 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/gitIntegration/platformProperties/2.0.0/schema.json",
+  "metadata": {
+    "type": "SemanticModel",
+    "displayName": "Nordea Assigment V2"
+  },
+  "config": {
+    "version": "2.0",
+    "logicalId": "7ad147b6-9b00-4d48-a5e1-3af96dfa721e"
+  }
+}

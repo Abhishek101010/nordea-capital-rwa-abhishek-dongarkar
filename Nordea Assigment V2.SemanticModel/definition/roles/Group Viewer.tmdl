@@ -1,0 +1,7 @@
+role 'Group Viewer'
+	modelPermission: read
+
+	tablePermission Dim_Country = TRUE ()
+
+	annotation PBI_Id = 84aa6052a5334dcd8562ad9b0b069fc7
+

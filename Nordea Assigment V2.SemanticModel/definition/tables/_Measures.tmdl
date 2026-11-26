@@ -1,0 +1,175 @@
+table _Measures
+	lineageTag: 9ecc7bf0-e65e-490a-88c9-ced31e6d14c3
+
+	measure 'Total RWA' = SUM ( Fact_Exposure[RWA] )
+		formatString: #,0
+		lineageTag: 1fabbaa3-4a46-4e03-b67a-e20efa3569cb
+
+	measure 'Total Exposure' = SUM ( Fact_Exposure[ExposureEUR] )
+		formatString: #,0
+		lineageTag: 3895001d-e5b0-4b3d-a3b0-76cdf5942617
+
+	measure 'Total Capital Requirement' = SUM ( Fact_Exposure[CapitalRequirement] )
+		formatString: #,0
+		lineageTag: 9e432d53-c5e8-4fb2-a19f-61e5d39efd51
+
+	measure 'RWA Actual' =
+			
+			CALCULATE (
+			    [Total RWA],
+			    REMOVEFILTERS ( Dim_Scenario ),
+			    Dim_Scenario[ScenarioCode] = "Actual"
+			)
+		formatString: 0
+		lineageTag: 7bf60996-f06e-494c-a67b-6153a528638d
+
+	measure 'RWA Budget' =
+			
+			CALCULATE (
+			    [Total RWA],
+			    REMOVEFILTERS ( Dim_Scenario ),
+			    Dim_Scenario[ScenarioCode] = "Budget"
+			)
+		formatString: 0
+		lineageTag: 9b54e084-6e56-4bca-a5fc-6ee32509423e
+
+	measure 'RWA Variance' =
+			
+			SUMX (
+			    VALUES ( Dim_Date[YearMonthNumber] ),
+			    VAR ActualRWA = [RWA Actual]
+			    VAR BudgetRWA = [RWA Budget]
+			    RETURN
+			        IF ( ISBLANK ( ActualRWA ) || ISBLANK ( BudgetRWA ), BLANK (), ActualRWA - BudgetRWA )
+			)
+		formatString: 0
+		lineageTag: 72155311-859d-4780-8a9d-76893c52085b
+
+	measure 'RWA Prior Month' =
+			
+			CALCULATE ( [Total RWA], PREVIOUSMONTH ( Dim_Date[Date] ) )
+		formatString: 0
+		lineageTag: eb09d144-2c10-4b18-be2b-8f9091dfce92
+
+	measure 'RWA MoM %' =
+			
+			IF (
+			    ISBLANK ( [Total RWA] ),
+			    BLANK (),
+			    DIVIDE ( [Total RWA] - [RWA Prior Month], [RWA Prior Month] )
+			)
+		formatString: 0.00%;-0.00%;0.00%
+		lineageTag: f0e35017-3deb-4ab6-8f61-469966dedb76
+
+	measure 'RWA Rolling 3M Months' =
+			
+			VAR AnchorDate =
+			    MIN (
+			        MAX ( Dim_Date[Date] ),
+			        CALCULATE ( MAX ( Fact_Exposure[ReportMonth] ), REMOVEFILTERS ( Dim_Date ) )
+			    )
+			VAR MonthsInWindow =
+			    CALCULATETABLE (
+			        ADDCOLUMNS ( VALUES ( Dim_Date[YearMonthNumber] ), "@RWA", [Total RWA] ),
+			        DATESINPERIOD ( Dim_Date[Date], AnchorDate, -3, MONTH )
+			    )
+			RETURN
+			    IF (
+			        ISBLANK ( [Total RWA] ),
+			        BLANK (),
+			        COUNTROWS ( FILTER ( MonthsInWindow, NOT ISBLANK ( [@RWA] ) ) )
+			    )
+		formatString: 0
+		lineageTag: 94da6191-4b42-45a7-967f-8b7228cf43e1
+
+	measure 'Rolling Avg Note' =
+			
+			"Rolling 3M average uses " & FORMAT ( [RWA Rolling 3M Months], "0" )
+			    & " month(s) with data in the window"
+		lineageTag: b600443a-97a6-4e66-a29d-f76ab82a48f0
+
+	measure 'RWA Rolling 3M Avg' =
+			
+			VAR AnchorDate =
+			    MIN (
+			        MAX ( Dim_Date[Date] ),
+			        CALCULATE ( MAX ( Fact_Exposure[ReportMonth] ), REMOVEFILTERS ( Dim_Date ) )
+			    )
+			VAR MonthsInWindow =
+			    CALCULATETABLE (
+			        ADDCOLUMNS ( VALUES ( Dim_Date[YearMonthNumber] ), "@RWA", [Total RWA] ),
+			        DATESINPERIOD ( Dim_Date[Date], AnchorDate, -3, MONTH )
+			    )
+			VAR MonthsWithData =
+			    FILTER ( MonthsInWindow, NOT ISBLANK ( [@RWA] ) )
+			RETURN
+			    IF (
+			        ISBLANK ( [Total RWA] ),
+			        BLANK (),
+			        DIVIDE ( SUMX ( MonthsWithData, [@RWA] ), COUNTROWS ( MonthsWithData ) )
+			    )
+		formatString: 0
+		lineageTag: 92b477ac-fe6e-4e07-8884-6f3c2b1cb174
+
+	measure 'Capital Requirement incl. Buffer' = [Total Capital Requirement] + 0.025 * [Total RWA]
+		formatString: 0
+		lineageTag: c1c89f56-7e57-417b-a9eb-55d0bbe3f63e
+
+	measure 'Capital Requirement %' = DIVIDE ( [Total Capital Requirement], [Total RWA] )
+		formatString: 0.00%;-0.00%;0.00%
+		lineageTag: 30cec93d-edbf-4970-ab81-4223a597ccce
+
+	measure 'RWA Density' = DIVIDE ( [Total RWA], [Total Exposure] )
+		formatString: 0.00%;-0.00%;0.00%
+		lineageTag: bf026b7a-f6f4-4405-9631-58473d089ee0
+
+	measure 'Model Value' =
+			
+			VAR SelectedCheck = SELECTEDVALUE ( DQ_Reconciliation[Check] )
+			RETURN
+			    CALCULATE (
+			        SWITCH (
+			            SelectedCheck,
+			            "Fact rows", COUNTROWS ( Fact_Exposure ),
+			            "Sum ExposureEUR", [Total Exposure],
+			            "Sum RWA", [Total RWA],
+			            "Sum CapitalRequirement", [Total Capital Requirement],
+			            "Rows with missing RWA", COUNTROWS ( FILTER ( Fact_Exposure, ISBLANK ( Fact_Exposure[RWA] ) ) ),
+			            "Dim_Counterparty rows", COUNTROWS ( Dim_Counterparty ),
+			            "Dim_Country rows", COUNTROWS ( Dim_Country ),
+			            "Dim_Segment rows", COUNTROWS ( Dim_Segment ),
+			            "Dim_Scenario rows", COUNTROWS ( Dim_Scenario ),
+			            "Security_UserCountry rows", COUNTROWS ( Security_UserCountry )
+			        ),
+			        REMOVEFILTERS ()
+			    )
+		formatString: 0
+		lineageTag: c480b1db-cea6-489c-a80c-924d9ecae278
+
+	measure 'Source Value' = SUM ( DQ_Reconciliation[SourceValue] )
+		formatString: 0
+		lineageTag: 3d97a579-6d9b-42ad-a163-66a40244dd04
+
+	measure Difference = [Model Value] - [Source Value]
+		lineageTag: e7852bb5-f856-4995-a233-b5df790d16e2
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'Fact Row Count' = COUNTROWS ( Fact_Exposure )
+		formatString: 0
+		lineageTag: 2d6d69cd-f38e-4b05-9e21-e3a912bbcd48
+
+	partition _Measures = m
+		mode: import
+		source =
+				let
+				    Source = Table.FromRows(Json.Document(Binary.Decompress(Binary.FromText("i44FAA==", BinaryEncoding.Base64), Compression.Deflate)), let _t = ((type nullable text) meta [Serialized.Text = true]) in type table [Column1 = _t]),
+				    #"Changed Type" = Table.TransformColumnTypes(Source,{{"Column1", type text}}),
+				    #"Removed Columns" = Table.RemoveColumns(#"Changed Type",{"Column1"})
+				in
+				    #"Removed Columns"
+
+	changedProperty = Name
+
+	annotation PBI_ResultType = Table
+

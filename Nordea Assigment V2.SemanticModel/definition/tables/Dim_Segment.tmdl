@@ -1,0 +1,37 @@
+table Dim_Segment
+	lineageTag: 184f586b-8564-4c32-b800-754ae43bdb9d
+
+	column SegmentCode
+		dataType: string
+		isHidden
+		lineageTag: af5eced3-9e43-47f6-ab86-27189e6c30cc
+		summarizeBy: none
+		sourceColumn: SegmentCode
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column SegmentName
+		dataType: string
+		lineageTag: 43d9f257-4cd3-4a75-96c9-4da9008b2f2e
+		summarizeBy: none
+		sourceColumn: SegmentName
+
+		annotation SummarizationSetBy = Automatic
+
+	partition Dim_Segment = m
+		mode: import
+		source =
+				let
+				    Source = Csv.Document(File.Contents("C:\Users\abhi\Downloads\Dim_Segment.csv"),[Delimiter=",", Columns=2, Encoding=1252, QuoteStyle=QuoteStyle.None]),
+				    #"Changed Type" = Table.TransformColumnTypes(Source,{{"Column1", type text}, {"Column2", type text}}),
+				    #"Promoted Headers" = Table.PromoteHeaders(#"Changed Type", [PromoteAllScalars=true]),
+				    #"Changed Type1" = Table.TransformColumnTypes(#"Promoted Headers",{{"SegmentCode", type text}, {"SegmentName", type text}})
+				in
+				    #"Changed Type1"
+
+	annotation PBI_ResultType = Table
+
+	annotation PBI_NavigationStepName = Navigation
+

@@ -1,0 +1,20 @@
+relationship a7a3345f-53b0-4d6a-5abf-582660521c16
+	fromColumn: Fact_Exposure.ReportMonth
+	toColumn: Dim_Date.Date
+
+relationship 1f62e526-8580-b636-e024-32e447d1eeb3
+	fromColumn: Fact_Exposure.CounterpartyID
+	toColumn: Dim_Counterparty.CounterpartyID
+
+relationship c29c1f6f-084f-8d8e-cd11-e314436a7c94
+	fromColumn: Fact_Exposure.CountryCode
+	toColumn: Dim_Country.CountryCode
+
+relationship e7188c32-9147-4676-ffc3-b62586f3e199
+	fromColumn: Fact_Exposure.SegmentCode
+	toColumn: Dim_Segment.SegmentCode
+
+relationship 175287d4-fe35-c8e3-cb69-479ec1f76970
+	fromColumn: Fact_Exposure.ScenarioCode
+	toColumn: Dim_Scenario.ScenarioCode
+

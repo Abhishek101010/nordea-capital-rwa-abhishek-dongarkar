@@ -1,0 +1,45 @@
+table Dim_Country
+	lineageTag: 8146e1d8-cc97-4d10-a38c-38ed4804260e
+
+	column CountryCode
+		dataType: string
+		isHidden
+		lineageTag: d664cc5d-6378-4383-8cbd-5942d09709f4
+		summarizeBy: none
+		sourceColumn: CountryCode
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column CountryName
+		dataType: string
+		lineageTag: 20970a04-9626-4e50-b548-43917a6c9911
+		summarizeBy: none
+		sourceColumn: CountryName
+
+		annotation SummarizationSetBy = Automatic
+
+	column Region
+		dataType: string
+		lineageTag: d9982e09-5ceb-44bf-bd01-2f5b6d890a99
+		summarizeBy: none
+		sourceColumn: Region
+
+		annotation SummarizationSetBy = Automatic
+
+	partition Dim_Country = m
+		mode: import
+		source =
+				let
+				    Source = Csv.Document(File.Contents("C:\Users\abhi\Downloads\Dim_Country.csv"),[Delimiter=",", Columns=3, Encoding=1252, QuoteStyle=QuoteStyle.None]),
+				    #"Changed Type" = Table.TransformColumnTypes(Source,{{"Column1", type text}, {"Column2", type text}, {"Column3", type text}}),
+				    #"Promoted Headers" = Table.PromoteHeaders(#"Changed Type", [PromoteAllScalars=true]),
+				    #"Changed Type1" = Table.TransformColumnTypes(#"Promoted Headers",{{"CountryCode", type text}, {"CountryName", type text}, {"Region", type text}})
+				in
+				    #"Changed Type1"
+
+	annotation PBI_ResultType = Table
+
+	annotation PBI_NavigationStepName = Navigation
+

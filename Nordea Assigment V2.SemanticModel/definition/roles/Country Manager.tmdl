@@ -1,0 +1,12 @@
+role 'Country Manager'
+	modelPermission: read
+
+	tablePermission Dim_Country =
+			[CountryCode]
+			    IN CALCULATETABLE (
+			        VALUES ( Security_UserCountry[CountryCode] ),
+			        Security_UserCountry[UserEmail] = USERPRINCIPALNAME ()
+			    )
+
+	annotation PBI_Id = 1c4f9eeb8c3e41adaec14cbfa444f388
+
