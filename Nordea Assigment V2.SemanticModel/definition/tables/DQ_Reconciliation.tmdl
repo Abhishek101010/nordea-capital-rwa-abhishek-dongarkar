@@ -6,7 +6,7 @@ table DQ_Reconciliation
 		isHidden
 		formatString: 0
 		lineageTag: 385e8433-949c-430e-8f64-a948949358bc
-		summarizeBy: sum
+		summarizeBy: none
 		sourceColumn: SortOrder
 
 		changedProperty = SortByColumn

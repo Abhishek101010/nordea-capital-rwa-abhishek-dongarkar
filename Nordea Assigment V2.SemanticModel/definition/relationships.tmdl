@@ -18,3 +18,9 @@ relationship 175287d4-fe35-c8e3-cb69-479ec1f76970
 	fromColumn: Fact_Exposure.ScenarioCode
 	toColumn: Dim_Scenario.ScenarioCode
 
+relationship AutoDetected_b7659111-660f-4355-a7f1-4ed27b576577
+	crossFilteringBehavior: bothDirections
+	fromCardinality: one
+	fromColumn: DQ_Reconciliation.SortOrder
+	toColumn: Glossary.SortOrder
+
