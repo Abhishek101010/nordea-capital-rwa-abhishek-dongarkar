@@ -1,0 +1,80 @@
+table Glossary
+	lineageTag: ef93b7b1-0b30-4a07-a07a-5e9d00e8b17f
+
+	column SortOrder
+		dataType: int64
+		formatString: 0
+		lineageTag: 2357db66-d708-4682-8901-cb2b448f13a2
+		summarizeBy: none
+		sourceColumn: SortOrder
+
+		annotation SummarizationSetBy = Automatic
+
+	column Type
+		dataType: string
+		lineageTag: e73011dd-ef47-45fc-bae9-e7c8e1e3570a
+		summarizeBy: none
+		sourceColumn: Type
+
+		annotation SummarizationSetBy = Automatic
+
+	column Term
+		dataType: string
+		lineageTag: 58795939-a7e3-4e3f-b28a-dcab6b637b68
+		summarizeBy: none
+		sourceColumn: Term
+		sortByColumn: SortOrder
+
+		changedProperty = SortByColumn
+
+		annotation SummarizationSetBy = Automatic
+
+	column Definition
+		dataType: string
+		lineageTag: 8c0a7191-a4e3-4f22-a263-9753780acaf6
+		summarizeBy: none
+		sourceColumn: Definition
+
+		annotation SummarizationSetBy = Automatic
+
+	partition Glossary = m
+		mode: import
+		source =
+				let
+				    Glossary = #table(
+				        type table [SortOrder = Int64.Type, Type = text, Term = text, Definition = text],
+				        {
+				            {1, "Business term", "Exposure", "The amount the bank has lent to a counterparty, in EUR."},
+				            {2, "Business term", "RWA (Risk Weighted Assets)", "The exposure adjusted for how risky the borrower is; riskier loans count for more."},
+				            {3, "Business term", "Capital Requirement", "The money the bank must hold aside by regulation, equal to 8% of RWA."},
+				            {4, "Business term", "Capital Buffer", "An extra safety cushion of 2.5% of RWA on top of the capital requirement."},
+				            {5, "Business term", "Counterparty", "The company or client the bank has lent money to."},
+				            {6, "Business term", "Segment", "The type of client: Corporate, SME or Retail."},
+				            {7, "Business term", "Actual", "The real figures reported at each month end."},
+				            {8, "Business term", "Budget", "The planned figures for each month."},
+				            {9, "Measure", "Total Exposure", "Total amount lent to all counterparties, in EUR."},
+				            {10, "Measure", "Total RWA", "Total risk weighted assets, in EUR."},
+				            {11, "Measure", "Total Capital Requirement", "Total capital the bank must hold, equal to 8% of RWA."},
+				            {12, "Measure", "RWA Density", "RWA as a percentage of exposure; shows how risky the portfolio is on average."},
+				            {13, "Measure", "Capital Requirement %", "Capital requirement as a percentage of RWA; always 8%, which confirms the data is consistent."},
+				            {14, "Measure", "Capital Requirement incl. Buffer", "Capital requirement plus a buffer of 2.5% of RWA."},
+				            {15, "Measure", "RWA Actual", "Reported RWA, whatever the scenario slicer is set to."},
+				            {16, "Measure", "RWA Budget", "Planned RWA, whatever the scenario slicer is set to."},
+				            {17, "Measure", "RWA Variance", "Actual RWA minus Budget RWA; blank when either is missing."},
+				            {18, "Measure", "RWA Variance %", "RWA Variance as a percentage of Budget RWA, using only months that have both."},
+				            {19, "Measure", "RWA Prior Month", "Total RWA of the previous month."},
+				            {20, "Measure", "RWA MoM %", "Percentage change in RWA compared with the previous month."},
+				            {21, "Measure", "RWA Rolling 3M Avg", "Average monthly RWA over the last three months, counting only months that have data."},
+				            {22, "Measure", "RWA Rolling 3M Months", "Number of months with data used in the rolling average."},
+				            {23, "Data quality", "DQ_Flag", "Data quality label on each row: OK, Missing RWA and capital requirement, or Unknown counterparty."},
+				            {24, "Data quality", "Source Value", "Row count or total read directly from the original CSV file."},
+				            {25, "Data quality", "Model Value", "The same row count or total calculated from the cleaned model."},
+				            {26, "Data quality", "Difference", "Model Value minus Source Value; every difference is explained on the reconciliation table."}
+				        })
+				in
+				    Glossary
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+

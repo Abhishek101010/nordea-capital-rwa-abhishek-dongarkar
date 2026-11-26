@@ -1,0 +1,38 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.15.0/schema.json",
+  "name": "fde461d45a9c8facdc02",
+  "position": {
+    "x": 0,
+    "y": 922.32,
+    "z": 8002,
+    "height": 36.72,
+    "width": 1799.28,
+    "tabOrder": 8002
+  },
+  "visual": {
+    "visualType": "textbox",
+    "objects": {
+      "general": [
+        {
+          "properties": {
+            "paragraphs": [
+              {
+                "textRuns": [
+                  {
+                    "value": "Note: the February dip is a data gap. One exposure (EXP-0011, France) has no RWA reported.",
+                    "textStyle": {
+                      "fontWeight": "bold",
+                      "fontSize": "18pt"
+                    }
+                  }
+                ],
+                "horizontalTextAlignment": "center"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "drillFilterOtherVisuals": true
+  }
+}

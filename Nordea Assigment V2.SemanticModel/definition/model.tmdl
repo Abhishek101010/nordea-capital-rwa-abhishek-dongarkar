@@ -9,7 +9,7 @@ model Model
 
 annotation __PBI_TimeIntelligenceEnabled = 1
 
-annotation PBI_QueryOrder = ["Fact_Exposure","Security_UserCountry","Dim_Counterparty","Dim_Segment","Dim_Country","Dim_Scenario","Dim_Date","_Measures","DQ_Reconciliation"]
+annotation PBI_QueryOrder = ["Fact_Exposure","Security_UserCountry","Dim_Counterparty","Dim_Segment","Dim_Country","Dim_Scenario","Dim_Date","_Measures","DQ_Reconciliation","Glossary"]
 
 annotation PBI_ProTooling = ["DevMode"]
 
@@ -22,6 +22,7 @@ ref table Dim_Scenario
 ref table Dim_Date
 ref table _Measures
 ref table DQ_Reconciliation
+ref table Glossary
 
 ref role 'Country Manager'
 ref role 'Group Viewer'
